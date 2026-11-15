@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zentro Digital — сайты, разбор слабых мест, CRM и боты</title>
+<meta name="description" content="Делаем сайты и редизайн, разбираем слабые места, настраиваем CRM, собираем заявки в одно место и пишем Telegram-ботов.">
+<meta name="theme-color" content="#f4f1ea">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   ZENTRO DIGITAL
+   Один файл. Всё, что нужно править, лежит в объекте CONFIG
+   в самом низу, в теге script. В разметку лазить не нужно.
+   ============================================================ */
+
+:root{
+  --paper:#f4f1ea;      /* бумага */
+  --paper-2:#eae5d9;    /* бумага потемнее */
+  --paper-3:#ded8ca;
+  --ink:#14151a;        /* текст */
+  --ink-2:#55575f;
+  --ink-3:#8b8c93;
+  --line:#d2ccbe;
+  --blue:#12308c;       /* акцент */
+  --blue-2:#0a1f5e;
+  --red:#a82218;        /* только для найденных проблем и devbar */
+
+  --disp:"Oswald",-apple-system,"Helvetica Neue",sans-serif;
+  --body:"IBM Plex Sans",-apple-system,"Helvetica Neue",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+
+  --wrap:1280px;
+  --pad:clamp(18px,4vw,56px);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);color:var(--ink);
+  font:400 16px/1.6 var(--body);
+  overflow-x:hidden;position:relative;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+em{font-style:normal}           /* никакого курсива на сайте */
+i{font-style:normal}
+::selection{background:var(--blue);color:var(--paper)}
+
+/* зерно поверх бумаги */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:900;opacity:.4;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad)}
+.mono{font:500 11px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+
+/* ---------- полоса прокрутки сверху ---------- */
+#progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--blue);z-index:1000}
+
+/* ---------- шапка ---------- */
+header{position:sticky;top:0;z-index:800;background:rgba(244,241,234,.86);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:28px;height:66px}
+.logo{font:600 19px/1 var(--disp);letter-spacing:.16em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo i{width:9px;height:9px;background:var(--blue);display:block}
+.logo s{text-decoration:none;color:var(--ink-3);font-weight:400}
+header nav{display:flex;gap:26px;margin-left:auto}
+header nav a{font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);padding:6px 0;position:relative}
+header nav a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;
+  background:var(--blue);transition:right .3s cubic-bezier(.2,.8,.2,1)}
+header nav a:hover{color:var(--ink)}
+header nav a:hover::after{right:0}
+@media(max-width:1040px){header nav{display:none}}
+
+/* ---------- кнопки ---------- */
+.btn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 26px;
+  font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;
+  position:relative;overflow:hidden;transition:color .3s}
+.btn span{position:relative;z-index:1}
+.btn::before{content:"";position:absolute;inset:0;background:var(--ink);
+  transform:translateY(101%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.btn:hover{color:var(--paper)}
+.btn:hover::before{transform:translateY(0)}
+.btn-blue{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-blue::before{background:var(--blue-2)}
+.btn-blue:hover{color:#fff}
+.btn-sm{height:40px;padding:0 16px;font-size:11px}
+
+/* ---------- заголовки ---------- */
+h1,h2,h3{font-family:var(--disp);font-weight:600;letter-spacing:-.01em;line-height:.98;
+  text-transform:uppercase}
+h1{font-size:clamp(44px,8.2vw,112px)}
+h2{font-size:clamp(30px,4.6vw,62px)}
+h3{font-size:clamp(17px,1.6vw,21px);letter-spacing:.01em;line-height:1.15}
+p{text-wrap:pretty}
+.lead{font-size:clamp(16px,1.35vw,19px);line-height:1.6;color:var(--ink-2);max-width:48ch}
+
+/* ---------- появление при прокрутке ---------- */
+.rv{opacity:0;transform:translateY(26px);
+  transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+/* ---------- первый экран ---------- */
+.hero{padding:clamp(48px,7vw,100px) 0 0;position:relative;z-index:1}
+.hero-top{display:grid;grid-template-columns:1fr 320px;gap:clamp(28px,5vw,64px);align-items:stretch;
+  border-bottom:1px solid var(--line);padding-bottom:30px}
+@media(max-width:900px){.hero-top{grid-template-columns:1fr;gap:34px}}
+.eyebrow{color:var(--blue);display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--blue);display:block}
+
+h1 .ln{display:block;overflow:hidden}
+h1 .ln>span{display:block;transform:translateY(105%);
+  animation:up .9s cubic-bezier(.2,.8,.2,1) forwards}
+h1 .ln:nth-child(2)>span{animation-delay:.09s}
+h1 .ln:nth-child(3)>span{animation-delay:.18s}
+h1 .ln:nth-child(4)>span{animation-delay:.27s}
+@keyframes up{to{transform:none}}
+h1 .blue{color:var(--blue)}
+
+.colophon{display:flex;flex-direction:column;border-left:1px solid var(--line);
+  padding-left:clamp(20px,2.4vw,30px)}
+.colophon .cap{font:500 11px/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);padding-bottom:14px}
+.colophon ul{list-style:none;border-top:1px solid var(--line)}
+.colophon li{border-bottom:1px solid var(--line);padding:11px 0;
+  font:500 clamp(15px,1.25vw,18px)/1.25 var(--disp);letter-spacing:.015em;
+  text-transform:uppercase;color:var(--ink);
+  display:flex;align-items:baseline;gap:12px;transition:color .3s}
+.colophon li:hover{color:var(--blue)}
+.colophon li u{text-decoration:none;font:500 10px/1 var(--mono);letter-spacing:.1em;
+  color:var(--ink-3);min-width:18px}
+.colophon .foot{margin-top:auto;padding-top:18px;display:flex;justify-content:space-between;
+  gap:14px;font:400 12px/1.4 var(--mono);color:var(--ink-2);letter-spacing:.04em}
+@media(max-width:900px){
+  .colophon{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:22px}
+  .colophon .foot{margin-top:18px}
+}
+
+.hero-mid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,72px);
+  padding:34px 0 46px}
+@media(max-width:900px){.hero-mid{grid-template-columns:1fr;gap:30px}}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+
+/* ---------- бегущая строка ---------- */
+.ticker{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
+  background:var(--ink);color:var(--paper);overflow:hidden;position:relative;z-index:1}
+.ticker-in{display:flex;width:max-content;animation:slide 32s linear infinite}
+.ticker:hover .ticker-in{animation-play-state:paused}
+.ticker b{font:600 clamp(20px,2.4vw,30px)/1 var(--disp);text-transform:uppercase;
+  letter-spacing:.02em;padding:16px 0;display:flex;align-items:center;white-space:nowrap}
+.ticker b::after{content:"";width:7px;height:7px;background:var(--blue);margin:0 26px;flex:none}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* ---------- панель разбора ---------- */
+.scan{border:1px solid var(--ink);background:#fff;
+  box-shadow:10px 10px 0 var(--paper-3);position:relative}
+.scan-top{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--line);background:var(--paper-2)}
+.scan-top i{display:flex;gap:4px}
+.scan-top i b{width:7px;height:7px;background:var(--ink-3);display:block}
+.scan-top .tag{margin-left:auto;font:500 10px/1 var(--mono);letter-spacing:.12em;
+  text-transform:uppercase;border:1px solid var(--line);padding:5px 8px;color:var(--ink-3)}
+.scan-body{padding:18px 16px;min-height:252px;font:400 13px/1.9 var(--mono);letter-spacing:0}
+.scan-body .ln{display:flex;gap:12px;opacity:0;transform:translateY(5px);
+  animation:fadein .5s forwards}
+.scan-body .n{color:var(--ink-3);flex:none}
+.scan-body .bad{color:var(--red)}
+.scan-body .ok{color:var(--blue)}
+.scan-body .sub{color:var(--ink-2);padding-left:30px;font-size:12px}
+@keyframes fadein{to{opacity:1;transform:none}}
+.scan-foot{display:flex;align-items:center;gap:14px;padding:12px 16px;
+  border-top:1px solid var(--line);background:var(--paper-2)}
+.scan-note{margin-top:16px;font-size:13px;line-height:1.6;color:var(--ink-3);max-width:46ch}
+
+/* ---------- цифры ---------- */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+@media(max-width:820px){.facts{grid-template-columns:1fr}}
+.facts div{padding:26px 26px 26px 0;border-right:1px solid var(--line)}
+.facts div:last-child{border-right:0}
+@media(max-width:820px){.facts div{border-right:0;border-bottom:1px solid var(--line);padding-right:0}}
+.facts b{display:block;font:600 clamp(26px,3vw,40px)/1 var(--disp);text-transform:uppercase;
+  margin-bottom:10px}
+.facts span{font-size:13.5px;line-height:1.55;color:var(--ink-2);display:block;max-width:34ch}
+
+/* ---------- секции ---------- */
+section{padding:clamp(64px,8vw,120px) 0;border-top:1px solid var(--line);position:relative;z-index:1}
+.s-head{display:grid;grid-template-columns:90px 1fr;gap:20px;align-items:start;
+  margin-bottom:clamp(34px,4vw,60px)}
+@media(max-width:700px){.s-head{grid-template-columns:52px 1fr}}
+.s-num{font:600 clamp(28px,3vw,46px)/1 var(--disp);color:var(--paper-3);
+  -webkit-text-stroke:1px var(--ink-3);color:transparent}
+.s-head .mono{color:var(--blue)}
+
+/* ---------- услуги: список строк ---------- */
+.svc{border-top:1px solid var(--ink)}
+.svc article{border-bottom:1px solid var(--line);position:relative;overflow:hidden;
+  transition:background .35s}
+.svc .row{display:grid;grid-template-columns:70px 1.1fr 1.4fr 46px;gap:22px;align-items:center;
+  padding:22px 0;position:relative;z-index:1;transition:padding .35s,color .35s}
+@media(max-width:860px){.svc .row{grid-template-columns:40px 1fr;gap:12px}
+  .svc .row p{grid-column:2}}
+.svc article::before{content:"";position:absolute;inset:0;background:var(--ink);
+  transform:translateY(101%);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.svc article:hover::before{transform:translateY(0)}
+.svc article:hover .row{color:var(--paper);padding-left:18px}
+.svc article:hover .num,.svc article:hover p{color:var(--paper-3)}
+.svc article:hover .arw{border-color:var(--paper);color:var(--paper)}
+.svc .num{font:500 12px/1 var(--mono);letter-spacing:.1em;color:var(--ink-3);
+  text-transform:uppercase;transition:color .35s}
+.svc h3{font-size:clamp(20px,2.2vw,30px)}
+.svc p{font-size:14px;line-height:1.6;color:var(--ink-2);transition:color .35s}
+.svc .arw{width:34px;height:34px;border:1px solid var(--line);display:flex;
+  align-items:center;justify-content:center;font-size:15px;transition:.35s;justify-self:end}
+@media(max-width:860px){.svc .arw{display:none}}
+
+/* ---------- этапы ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-left:1px solid var(--line)}
+@media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.steps{grid-template-columns:1fr}}
+.steps article{padding:26px 24px 30px;border-right:1px solid var(--line);
+  border-top:2px solid var(--ink);position:relative;transition:background .3s}
+.steps article:hover{background:var(--paper-2)}
+.steps article::after{content:"";position:absolute;top:-2px;left:0;height:2px;width:0;
+  background:var(--blue);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.rv.in .steps article::after,.steps.in article::after{width:100%}
+.steps article:nth-child(2)::after{transition-delay:.12s}
+.steps article:nth-child(3)::after{transition-delay:.24s}
+.steps article:nth-child(4)::after{transition-delay:.36s}
+.steps b{font:500 11px/1 var(--mono);letter-spacing:.14em;color:var(--blue);
+  display:block;margin:4px 0 16px}
+.steps h3{margin-bottom:12px}
+.steps p{font-size:14px;line-height:1.6;color:var(--ink-2)}
+
+/* ---------- принципы ---------- */
+.rules{border-top:1px solid var(--ink)}
+.rules article{display:grid;grid-template-columns:70px 1.1fr 1.4fr;gap:22px;
+  align-items:start;padding:28px 0;border-bottom:1px solid var(--line);
+  position:relative;transition:padding .35s}
+.rules article::before{content:"";position:absolute;left:0;top:-1px;height:1px;width:0;
+  background:var(--blue);transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.rules article:hover::before{width:100%}
+.rules article:hover{padding-left:16px}
+.rules .num{font:500 12px/1 var(--mono);letter-spacing:.1em;color:var(--ink-3);
+  text-transform:uppercase;padding-top:6px}
+.rules h3{font-size:clamp(18px,1.8vw,24px);max-width:15ch}
+.rules p{font-size:14.5px;line-height:1.7;color:var(--ink-2);max-width:56ch}
+@media(max-width:860px){
+  .rules article{grid-template-columns:40px 1fr;gap:12px 14px;padding:24px 0}
+  .rules p{grid-column:2}
+  .rules article:hover{padding-left:0}
+}
+
+/* ---------- работы ---------- */
+.cases{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,3vw,44px)}
+@media(max-width:860px){.cases{grid-template-columns:1fr}}
+.cases article{position:relative}
+.shot{position:relative;overflow:hidden;border:1px solid var(--ink);background:var(--paper-2)}
+.shot-bar{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--paper-2);
+  border-bottom:1px solid var(--line)}
+.shot-bar i{display:flex;gap:4px}
+.shot-bar i b{width:6px;height:6px;background:var(--ink-3);display:block}
+.shot-bar span{font:400 11px/1 var(--mono);color:var(--ink-2);letter-spacing:.02em}
+.shot-view{aspect-ratio:16/10;overflow:hidden;background:var(--paper-3);position:relative}
+.shot-view img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  filter:grayscale(.35) contrast(1.02);transform:scale(1.01);
+  transition:transform .8s cubic-bezier(.2,.8,.2,1),filter .5s}
+.cases article:hover .shot-view img{transform:scale(1.06);filter:none}
+.shot-fallback{position:absolute;inset:0;display:none;align-items:flex-end;padding:22px;
+  background:repeating-linear-gradient(135deg,var(--paper-2) 0 10px,var(--paper-3) 10px 20px)}
+.shot-fallback b{font:600 clamp(30px,4vw,54px)/1 var(--disp);text-transform:uppercase;
+  color:var(--ink-3)}
+.noimg .shot-view img{display:none}
+.noimg .shot-fallback{display:flex}
+.case-meta{display:flex;justify-content:space-between;gap:14px;margin:18px 0 8px}
+.case-meta .mono{color:var(--ink-3)}
+.case-meta .mono b{color:var(--blue);font-weight:500}
+.cases h3{font-size:clamp(20px,2.1vw,27px);margin-bottom:10px}
+.cases p{font-size:14px;line-height:1.65;color:var(--ink-2);margin-bottom:16px;max-width:48ch}
+.cases ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.cases li{font:500 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-2);border:1px solid var(--line);padding:7px 9px}
+.cases a.lnk{display:inline-flex;align-items:center;gap:9px;font:500 12px/1 var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--blue);padding-bottom:4px;
+  border-bottom:1px solid var(--line);transition:border-color .25s,gap .25s}
+.cases a.lnk:hover{border-color:var(--blue);gap:14px}
+.cases span.lnk{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3)}
+
+/* ---------- контакты ---------- */
+.contact{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(30px,5vw,76px);align-items:start}
+@media(max-width:900px){.contact{grid-template-columns:1fr}}
+.ch{margin-top:30px;border-top:1px solid var(--line)}
+.ch a,.ch span.row{display:flex;align-items:center;gap:16px;padding:17px 0;
+  border-bottom:1px solid var(--line);transition:padding-left .3s}
+.ch a:hover{padding-left:12px}
+.ch .k{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);width:92px;flex:none}
+.ch .v{font:600 clamp(16px,1.7vw,21px)/1 var(--disp);letter-spacing:.02em}
+.ch a:hover .v{color:var(--blue)}
+
+form{border:1px solid var(--ink);background:#fff;padding:clamp(22px,3vw,34px)}
+.fld{margin-bottom:20px}
+.fld label{display:block;font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:9px}
+.fld input,.fld textarea{width:100%;background:transparent;border:0;
+  border-bottom:1px solid var(--line);padding:11px 0;font:400 16px/1.5 var(--body);
+  color:var(--ink);transition:border-color .25s}
+.fld textarea{resize:vertical;min-height:96px}
+.fld input:focus,.fld textarea:focus{outline:0;border-color:var(--blue)}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--ink-3)}
+.act{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:26px}
+.privacy{font-size:11.5px;line-height:1.5;color:var(--ink-3);max-width:34ch}
+.formmsg{margin-top:18px;font:500 12px/1.5 var(--mono);letter-spacing:.04em;display:none}
+.formmsg.show{display:block}
+.formmsg.ok{color:var(--blue)}
+.formmsg.err{color:var(--red)}
+
+/* ---------- подвал ---------- */
+footer{background:var(--ink);color:var(--paper);padding:clamp(40px,5vw,66px) 0 26px;
+  position:relative;z-index:1}
+footer .logo s{color:var(--ink-3)}
+footer .logo i{background:var(--blue)}
+.foot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;padding-bottom:34px;
+  border-bottom:1px solid #2b2d35}
+@media(max-width:760px){.foot{grid-template-columns:1fr;gap:22px}}
+.foot .mono{color:var(--ink-3);line-height:2}
+.foot a.mono:hover{color:var(--paper)}
+.foot-end{display:flex;justify-content:space-between;gap:16px;padding-top:22px;flex-wrap:wrap}
+.foot-end .mono{color:var(--ink-3)}
+
+/* ---------- красная полоса «не для показа» ---------- */
+#devbar{position:fixed;left:0;right:0;bottom:0;z-index:1000;background:var(--red);color:#fff;
+  display:none;align-items:center;gap:14px;padding:11px var(--pad);
+  font:400 13px/1.45 var(--body)}
+#devbar.on{display:flex}
+#devbar b{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.55);padding:6px 9px;flex:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv{opacity:1;transform:none}
+  h1 .ln>span{transform:none}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#top"><i aria-hidden="true"></i>ZENTRO<s>DIGITAL</s></a>
+    <nav>
+      <a href="#services">Услуги</a>
+      <a href="#process">Как работаем</a>
+      <a href="#rules">Принципы</a>
+      <a href="#cases">Работы</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+    <a class="btn btn-blue btn-sm" href="#contact"><span>Обсудить проект</span></a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ================= ПЕРВЫЙ ЭКРАН ================= -->
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <p class="mono eyebrow">Разработка и автоматизация</p>
+        <h1 style="margin-top:20px">
+          <span class="ln"><span>Сначала находим,</span></span>
+          <span class="ln"><span>где вы теряете</span></span>
+          <span class="ln"><span>клиентов.</span></span>
+          <span class="ln"><span class="blue">Потом строим.</span></span>
+        </h1>
+      </div>
+      <div class="colophon">
+        <p class="cap">Что мы делаем</p>
+        <ul>
+          <li><u>01</u>Сайты с нуля</li>
+          <li><u>02</u>Редизайн</li>
+          <li><u>03</u>Разбор слабых мест</li>
+          <li><u>04</u>Автоматизация и CRM</li>
+          <li><u>05</u>Telegram-боты</li>
+        </ul>
+        <div class="foot">
+          <span id="colophon-city">Москва</span>
+          <span>zentro-digital.ru</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-mid">
+      <div>
+        <p class="lead">Делаем сайты и редизайн, настраиваем CRM, собираем заявки
+          в одно место и пишем Telegram-ботов. Начинаем не с презентации, а с разбора:
+          что именно на вашем сайте мешает человеку оставить заявку — и сколько
+          стоит это починить.</p>
+        <div class="hero-cta">
+          <a class="btn btn-blue" href="#contact"><span>Получить разбор сайта</span></a>
+          <a class="btn" href="#cases"><span>Смотреть работы</span></a>
+        </div>
+      </div>
+
+      <div>
+        <div class="scan" role="img" aria-label="Пример разбора сайта: найденные проблемы">
+          <div class="scan-top">
+            <i aria-hidden="true"><b></b><b></b><b></b></i>
+            <span class="mono">разбор сайта</span>
+            <span class="tag">пример</span>
+          </div>
+          <div class="scan-body" id="scan"></div>
+          <div class="scan-foot">
+            <span class="mono">итог: 4 проблемы</span>
+            <a class="btn btn-sm" href="#contact" style="margin-left:auto"><span>Проверить мой сайт</span></a>
+          </div>
+        </div>
+        <p class="scan-note">Так выглядит разбор: не «сайт устарел», а список проблем,
+          каждую из которых видно и можно проверить самому.</p>
+      </div>
+    </div>
+
+    <div class="facts rv">
+      <div><b>1–2 секунды</b><span>столько должна грузиться главная. Дольше — и часть людей уходит, не увидев её</span></div>
+      <div><b>7 из 10</b><span>заходят с телефона. Если там неудобно, остальное уже не важно</span></div>
+      <div><b>Фикс&nbsp;смета</b><span>цену и срок называем до начала работ и держим</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= БЕГУЩАЯ СТРОКА ================= -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-in" id="ticker"></div>
+</div>
+
+<!-- ================= УСЛУГИ ================= -->
+<section id="services">
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-num">01</span>
+      <div>
+        <p class="mono" style="margin-bottom:14px">Услуги</p>
+        <h2>Шесть задач,<br>которые мы закрываем</h2>
+      </div>
+    </div>
+
+    <div class="svc rv">
+      <article>
+        <div class="row">
+          <span class="num">01</span>
+          <h3>Сайт с нуля</h3>
+          <p>Лендинг или корпоративный сайт: структура, тексты, дизайн, вёрстка,
+            подключение к вашему домену. Открывается быстро и нормально читается с телефона.</p>
+          <span class="arw">→</span>
+        </div>
+      </article>
+      <article>
+        <div class="row">
+          <span class="num">02</span>
+          <h3>Редизайн</h3>
+          <p>Сайт, сделанный до 2020 года, клиент видит иначе, чем вы: мелкий текст,
+            вёрстка в три экрана по горизонтали, формы, которые не отправляются.
+            Переделываем, сохраняя позиции в поиске.</p>
+          <span class="arw">→</span>
+        </div>
+      </article>
+      <article>
+        <div class="row">
+          <span class="num">03</span>
+          <h3>Разбор слабых мест</h3>
+          <p>Проходим по сайту по пунктам: скорость, телефоны, формы, тексты, видимость
+            в поиске. На выходе список проблем с ценой каждой — а не вывод «надо всё переделать».</p>
+          <span class="arw">→</span>
+        </div>
+      </article>
+      <article>
+        <div class="row">
+          <span class="num">04</span>
+          <h3>Автоматизация заявок</h3>
+          <p>Заявки с сайта, из почты, с карт и из мессенджеров попадают в одно место.
+            Никто не держит в голове, кому надо перезвонить, и не ищет переписку по чатам.</p>
+          <span class="arw">→</span>
+        </div>
+      </article>
+      <article>
+        <div class="row">
+          <span class="num">05</span>
+          <h3>CRM-система</h3>
+          <p>Настраиваем amoCRM или Битрикс24 под ваш процесс либо собираем своё решение:
+            карточки клиентов, этапы сделок, напоминания, воронка и понятные отчёты.</p>
+          <span class="arw">→</span>
+        </div>
+      </article>
+      <article>
+        <div class="row">
+          <span class="num">06</span>
+          <h3>Telegram-боты</h3>
+          <p>Приём заявок, запись на услугу, уведомления сотрудникам, рассылка по своей базе,
+            ответы на частые вопросы. Бот работает круглосуточно и не забывает ответить.</p>
+          <span class="arw">→</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЭТАПЫ ================= -->
+<section id="process">
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-num">02</span>
+      <div>
+        <p class="mono" style="margin-bottom:14px">Как работаем</p>
+        <h2>Четыре шага<br>без сюрпризов</h2>
+      </div>
+    </div>
+
+    <div class="steps rv">
+      <article>
+        <b>ШАГ 01</b>
+        <h3>Разговор 20 минут</h3>
+        <p>Без брифов на сорок пунктов. Нужно понять, откуда у вас приходят клиенты
+          и что сейчас мешает.</p>
+      </article>
+      <article>
+        <b>ШАГ 02</b>
+        <h3>Смета и срок</h3>
+        <p>Фиксируем цену и дату до начала работ. Если по ходу появится что-то новое,
+          сначала согласуем, а не впишем в счёт.</p>
+      </article>
+      <article>
+        <b>ШАГ 03</b>
+        <h3>Работа с показом</h3>
+        <p>Видите промежуточный результат по частям и правите на ходу, а не получаете
+          всё разом через месяц.</p>
+      </article>
+      <article>
+        <b>ШАГ 04</b>
+        <h3>Запуск и поддержка</h3>
+        <p>Переносим на ваш домен и хостинг, передаём все доступы, остаёмся на связи
+          после сдачи.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ПРИНЦИПЫ ================= -->
+<section id="rules">
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-num">03</span>
+      <div>
+        <p class="mono" style="margin-bottom:14px">Принципы</p>
+        <h2>На чём держится<br>работа</h2>
+      </div>
+    </div>
+
+    <div class="rules rv">
+      <article>
+        <span class="num">01</span>
+        <h3>Говорим сроки, которые выдержим</h3>
+        <p>Лучше назвать три недели и сдать в три недели, чем обещать неделю и пропасть.
+          Если срок поехал — вы узнаёте об этом первым, а не в день сдачи.</p>
+      </article>
+      <article>
+        <span class="num">02</span>
+        <h3>Не продаём то, что вам не нужно</h3>
+        <p>Разбор вполне может закончиться выводом «сайт нормальный, трогать не надо,
+          поправьте две вещи сами». Такое мы и скажем.</p>
+      </article>
+      <article>
+        <span class="num">03</span>
+        <h3>Сайт остаётся вашим</h3>
+        <p>Домен, хостинг, админка, исходники и все доступы оформляются на вас.
+          Уйти от нас можно в любой момент и ничего при этом не потерять.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= РАБОТЫ ================= -->
+<section id="cases">
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-num">04</span>
+      <div>
+        <p class="mono" style="margin-bottom:14px">Работы</p>
+        <h2>Что уже сделано</h2>
+      </div>
+    </div>
+    <div class="cases" id="cases-grid"></div>
+  </div>
+</section>
+
+<!-- ================= КОНТАКТЫ ================= -->
+<section id="contact" style="border-bottom:0">
+  <div class="wrap">
+    <div class="s-head rv">
+      <span class="s-num">05</span>
+      <div>
+        <p class="mono" style="margin-bottom:14px">Контакты</p>
+        <h2>Расскажите,<br>что нужно</h2>
+      </div>
+    </div>
+
+    <div class="contact">
+      <div class="rv">
+        <p class="lead" style="margin-top:0">Напишите пару строк о задаче — отвечу
+          в течение рабочего дня. Если нужен разбор сайта, оставьте адрес: пришлю список
+          найденных проблем, даже если мы потом не станем работать вместе.</p>
+        <div class="ch" id="channels"></div>
+      </div>
+
+      <form class="rv" id="lead-form" novalidate>
+        <div class="fld">
+          <label for="f-name">Как к вам обращаться</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Имя" required>
+        </div>
+        <div class="fld">
+          <label for="f-contact">Телефон, Telegram или почта</label>
+          <input id="f-contact" name="contact" type="text" autocomplete="tel"
+                 placeholder="Куда вам ответить" required>
+        </div>
+        <div class="fld">
+          <label for="f-site">Сайт, если есть</label>
+          <input id="f-site" name="site" type="text" placeholder="example.ru — или оставьте пустым">
+        </div>
+        <div class="fld">
+          <label for="f-task">Задача</label>
+          <textarea id="f-task" name="task" rows="4"
+                    placeholder="Нужен новый сайт / переделать старый / настроить CRM / бот"></textarea>
+        </div>
+        <div class="act">
+          <button class="btn btn-blue" type="submit"><span>Отправить</span></button>
+          <span class="privacy">Нажимая кнопку, вы соглашаетесь на обработку указанных
+            контактных данных для ответа на обращение.</span>
+        </div>
+        <div class="formmsg" id="formmsg" role="status"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="logo" href="#top"><i aria-hidden="true"></i>ZENTRO<s>DIGITAL</s></a>
+      <div class="mono" id="foot-contacts"></div>
+      <div class="mono">
+        Сайты · Редизайн<br>Разбор · Автоматизация<br>CRM · Боты
+      </div>
+    </div>
+    <div class="foot-end">
+      <span class="mono">zentro-digital.ru</span>
+      <span class="mono" id="year">© 2026</span>
+    </div>
+  </div>
+</footer>
+
+<div id="devbar">
+  <b>не для показа</b>
+  <span id="devbar-text"></span>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — единственное место, где нужно что-то менять.
+   В разметку лазить не нужно.
+   ============================================================ */
+const CONFIG = {
+  telegram: "r1905ra",
+  phone:    "+7 926 858-05-95",
+  email:    "hello@zentro-digital.ru",   // ящик заводится в reg.ru → Почта
+  city:     "Москва",
+
+  // Куда уходит форма. Пока пусто — заявка не теряется:
+  // открывается Telegram с уже подставленным текстом.
+  formEndpoint: "",             // например: "https://formspree.io/f/xxxxxxx"
+
+  // Работы.
+  //   url — ставим только у тех сайтов, которые сейчас открываются:
+  //         битая ссылка в портфолио дороже отсутствующей.
+  //   img — картинка кейса. Можно положить свои файлы в папку site/shots
+  //         и написать "shots/kayra.jpg" — это надёжнее внешних ссылок.
+  //         Если картинка не загрузится, карточка покажет аккуратную заглушку.
+  cases: [
+    { title: "MAEL vibe boutique", kind: "магазин с нуля",
+      url: "https://mael.boutique", host: "mael.boutique",
+      img: "mael.jpg",
+      text: "Бутик модест-моды в Москве. Каталог по категориям и брендам, карточки " +
+            "с размерами, корзина, адреса доставки — всё на своём домене.",
+      tags: ["каталог", "корзина", "адаптив"] },
+
+    { title: "KAYRA STROY", kind: "промо-сайт + CRM",
+      url: "https://kayra-stroy.ru", host: "kayra-stroy.ru",
+      img: "kayra.jpg",
+      text: "Строительство домов под ключ. Анимация на GSAP, полный адаптив, " +
+            "а заявки с двух сайтов компании падают в один админ-кабинет.",
+      tags: ["GSAP", "CRM", "общая база"] },
+
+    { title: "MR. DORN", kind: "каталог проектов",
+      url: "https://mrdorn.ru", host: "mrdorn.ru",
+      img: "mrdorn.jpg",
+      text: "Второй ресурс той же компании: витрина проектов. Общая панель управления " +
+            "и один сервер — каталог обновляется сразу на обоих сайтах.",
+      tags: ["каталог", "одна панель"] },
+
+    { title: "CHEATER VPN", kind: "сервис в Telegram",
+      url: "https://t.me/cheatervpn_bot", host: "t.me/cheatervpn_bot",
+      img: "https://cdn4.telesco.pe/file/SlwlfYlAaTV4BfYJmH3XKS8KGF0cJ-6Is2518eM9hzb85r5ryeFPgUNoDXv3lZ_ZzvX57lT3OhxlZwPNWPb_yuIpUfBGVDPigBOuJhL2pqXSyFS8tTHTjYLCNbvCNCJicE84-jL6fgykBt5NTML32cF6zzb8YKUHD2GSvITYP3PC_kaJphxm5ftl4plIKMLn2_SG4h0g276ZLIPeU-Ew3CcCTzCXJMyg8fhHNWtsT5bMzNX_M4p6WLuhH_M_vmF9dkGZ5uAApfNy1w3NEe9TIULeSyFBU5zfEkol9OEgv4GQq7Zpo2LQEN-H4voeMFp77pFRBVEA5ofOAV6X-kfBgA.jpg",
+      text: "Коммерческий VPN целиком внутри Telegram: выдача ключей без человека, " +
+            "оплата подписки в Mini App, шесть серверов с автомониторингом. " +
+            "Больше 1000 активных пользователей.",
+      tags: ["Mini App", "оплата", "автовыдача"] },
+
+    { title: "Шашлык Центр", kind: "сайт + боты",
+      url: "", host: "shashlik-centr.ru",
+      img: "shashlik.jpg",
+      text: "Доставка еды: сайт под ключ и два Telegram-бота — приём заказов " +
+            "для персонала и управление меню для владельца.",
+      tags: ["Telegram-боты", "заказы", "меню"] },
+
+    { title: "ВКО Сервис", kind: "редизайн",
+      url: "", host: "cleaningvko.ru",
+      img: "vko.jpg",
+      text: "Клининговая компания. Старый сайт разобрали и собрали заново: " +
+            "первый экран, структура услуг, мобильная версия.",
+      tags: ["редизайн", "адаптив"] },
+  ],
+};
+/* ================= КОНЕЦ CONFIG ================= */
+
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  /* --- что не заполнено: сайт не должен уйти клиенту с дырками --- */
+  const miss = [];
+  const mark = (v, name) => { if (!v || !String(v).trim()) { miss.push(name); return false; } return true; };
+
+  const hasTg    = mark(CONFIG.telegram, "телеграм");
+  const hasPhone = mark(CONFIG.phone, "телефон");
+  const hasMail  = mark(CONFIG.email, "почта");
+
+  /* --- город в колонтитуле --- */
+  if (CONFIG.city) $("colophon-city").textContent = CONFIG.city;
+
+  /* --- бегущая строка --- */
+  const words = ["Сайты с нуля", "Редизайн", "Разбор слабых мест",
+                 "Автоматизация заявок", "CRM", "Telegram-боты"];
+  const line = words.map((w) => "<b>" + esc(w) + "</b>").join("");
+  $("ticker").innerHTML = line + line;   // две копии: шов не виден
+
+  /* --- панель разбора: строки появляются одна за другой --- */
+  const scanLines = [
+    { n: "01", t: "запрос example-stomat.ru", c: "" },
+    { n: "02", t: "ответ 200 · 4.8 с", c: "bad" },
+    { s: "медленно: часть людей уйдёт раньше" },
+    { n: "03", t: "мобильная версия не найдена", c: "bad" },
+    { s: "на телефоне текст мелкий, кнопки не нажать" },
+    { n: "04", t: "в подвале «© 2014»", c: "bad" },
+    { s: "посетитель решит, что компания не работает" },
+    { n: "05", t: "форма заявки без обработчика", c: "bad" },
+    { s: "заявки уходят в никуда" },
+    { n: "06", t: "телефон и адрес на месте", c: "ok" },
+  ];
+  $("scan").innerHTML = scanLines.map((l, i) => {
+    const d = ' style="animation-delay:' + (0.25 + i * 0.16).toFixed(2) + 's"';
+    return l.s
+      ? '<div class="ln sub"' + d + ">↳ " + esc(l.s) + "</div>"
+      : '<div class="ln"' + d + '><span class="n">' + l.n + '</span>' +
+        '<span class="' + l.c + '">' + esc(l.t) + "</span></div>";
+  }).join("");
+
+  /* --- работы --- */
+  const grid = $("cases-grid");
+  grid.innerHTML = CONFIG.cases.map((c, i) => {
+    const num = String(i + 1).padStart(2, "0");
+    const shot =
+      '<div class="shot">' +
+        '<div class="shot-bar"><i aria-hidden="true"><b></b><b></b><b></b></i>' +
+          "<span>" + esc(c.host || "") + "</span></div>" +
+        '<div class="shot-view">' +
+          (c.img ? '<img loading="lazy" alt="' + esc(c.title) + '" src="' + esc(c.img) + '">' : "") +
+          '<div class="shot-fallback"><b>' + esc(c.title) + "</b></div>" +
+        "</div>" +
+      "</div>";
+
+    // Ссылку ставим только если она есть: кнопка, ведущая в ошибку браузера,
+    // портит впечатление сильнее, чем её отсутствие.
+    const link = c.url
+      ? '<a class="lnk" href="' + esc(c.url) + '" target="_blank" rel="noopener">Открыть →</a>'
+      : '<span class="lnk">показываем по запросу</span>';
+
+    return '<article class="rv' + (c.img ? "" : " noimg") + '" style="transition-delay:' +
+             (i % 2) * 0.09 + 's">' +
+             shot +
+             '<div class="case-meta"><span class="mono">' + num + "</span>" +
+               '<span class="mono"><b>' + esc(c.kind || "проект") + "</b></span></div>" +
+             "<h3>" + esc(c.title || "Проект") + "</h3>" +
+             "<p>" + esc(c.text || "") + "</p>" +
+             ((c.tags || []).length ? "<ul><li>" + c.tags.map(esc).join("</li><li>") + "</li></ul>" : "") +
+             link +
+           "</article>";
+  }).join("");
+
+  // картинка не открылась — показываем заглушку, а не пустую рамку
+  grid.querySelectorAll("img").forEach((img) => {
+    img.addEventListener("error", () => img.closest("article").classList.add("noimg"));
+  });
+
+  /* --- контакты --- */
+  const tgUrl = hasTg ? "https://t.me/" + String(CONFIG.telegram).replace(/^@/, "") : "";
+  const telUrl = hasPhone ? "tel:" + String(CONFIG.phone).replace(/[^\d+]/g, "") : "";
+  const rows = [];
+  if (hasPhone) rows.push('<a href="' + telUrl + '"><span class="k">Телефон</span><span class="v">' + esc(CONFIG.phone) + "</span></a>");
+  if (hasTg)    rows.push('<a href="' + tgUrl + '" target="_blank" rel="noopener"><span class="k">Telegram</span><span class="v">@' + esc(String(CONFIG.telegram).replace(/^@/, "")) + "</span></a>");
+  if (hasMail)  rows.push('<a href="mailto:' + esc(CONFIG.email) + '"><span class="k">Почта</span><span class="v">' + esc(CONFIG.email) + "</span></a>");
+  $("channels").innerHTML = rows.join("");
+
+  const foot = [];
+  if (hasPhone) foot.push('<a class="mono" href="' + telUrl + '">' + esc(CONFIG.phone) + "</a>");
+  if (hasTg)    foot.push('<a class="mono" href="' + tgUrl + '" target="_blank" rel="noopener">@' + esc(String(CONFIG.telegram).replace(/^@/, "")) + "</a>");
+  if (hasMail)  foot.push('<a class="mono" href="mailto:' + esc(CONFIG.email) + '">' + esc(CONFIG.email) + "</a>");
+  $("foot-contacts").innerHTML = foot.join("<br>");
+
+  $("year").textContent = "© " + new Date().getFullYear();
+
+  /* --- форма --- */
+  const form = $("lead-form");
+  const msg = $("formmsg");
+  const say = (text, kind) => { msg.textContent = text; msg.className = "formmsg show " + kind; };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const d = {
+      name: form.name.value.trim(),
+      contact: form.contact.value.trim(),
+      site: form.site.value.trim(),
+      task: form.task.value.trim(),
+    };
+    if (!d.name || !d.contact) { say("Заполните имя и контакт — иначе я не смогу ответить.", "err"); return; }
+
+    const text = "Заявка с сайта\nИмя: " + d.name + "\nКонтакт: " + d.contact +
+                 (d.site ? "\nСайт: " + d.site : "") + (d.task ? "\nЗадача: " + d.task : "");
+
+    if (CONFIG.formEndpoint) {
+      try {
+        const r = await fetch(CONFIG.formEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(d),
+        });
+        if (!r.ok) throw new Error(r.status);
+        form.reset();
+        say("Заявка ушла. Отвечу в течение рабочего дня.", "ok");
+      } catch (err) {
+        // Заявку не теряем: отдаём её в Telegram готовым текстом.
+        if (hasTg) {
+          say("Отправка не сработала — открываю Telegram с текстом заявки.", "err");
+          window.open(tgUrl + "?text=" + encodeURIComponent(text), "_blank", "noopener");
+        } else {
+          say("Отправка не сработала. Напишите, пожалуйста, напрямую.", "err");
+        }
+      }
+      return;
+    }
+
+    if (hasTg) {
+      say("Открываю Telegram — текст заявки уже подставлен, нужно только отправить.", "ok");
+      window.open(tgUrl + "?text=" + encodeURIComponent(text), "_blank", "noopener");
+    } else {
+      say("Форма пока не подключена. Напишите, пожалуйста, напрямую.", "err");
+    }
+  });
+
+  /* --- появление блоков при прокрутке --- */
+  const rv = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((es) => {
+      es.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    rv.forEach((el) => io.observe(el));
+  } else {
+    rv.forEach((el) => el.classList.add("in"));
+  }
+
+  /* --- полоса прокрутки сверху --- */
+  const bar = $("progress");
+  const onScroll = () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + "%";
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* --- красная полоса, пока сайт не готов к показу --- */
+  if (miss.length) {
+    $("devbar-text").textContent =
+      "Не заполнено: " + miss.join(", ") + ". Пока это так, сайт нельзя отправлять " +
+      "клиентам — правки в блоке CONFIG в начале тега script.";
+    $("devbar").classList.add("on");
+    document.body.style.paddingBottom = "56px";
+  }
+})();
+</script>
+</body>
+</html>
